@@ -21,6 +21,11 @@ class TestHTMLNode(unittest.TestCase):
         prop_text = node.props_to_html()
         self.assertEqual(prop_text, ' href="https://www.marcoevelle.games" target="home" color="purple"')
 
+    def test_props_to_html_no_prop(self):
+        node = HTMLNode(None, None, None, None)
+        prop_text = node.props_to_html()
+        self.assertEqual(prop_text, "")
+
     def test_props_to_html_false(self):
         node = HTMLNode()
         prop_text = node.props_to_html()
@@ -75,12 +80,30 @@ class TestHTMLNode(unittest.TestCase):
         text = f"HTMLNode(None, This is my gaming site., HTMLNode, {prop})"
         self.assertEqual(text, repr(node))
 
+    def test_htmlnode_print6(self):
+        node = HTMLNode("#", "This is my gaming site.","HTMLNode",None)
+        text = f"HTMLNode(#, This is my gaming site., HTMLNode, None)"
+        self.assertEqual(text, repr(node))
+
     def test_values(self):
         node = HTMLNode("h1", "Sup!")
         self.assertEqual(node.tag, "h1")
         self.assertEqual(node.value, "Sup!")
         self.assertEqual(node.children, None)
         self.assertEqual(node.props, None)
+
+    def test_leaf_to_html_a(self):
+        node = LeafNode("a", "Palworld Server", {"href": "https://palworld.marcoevelle.games"})
+        self.assertEqual(node.to_html(), '<a href="https://palworld.marcoevelle.games">Palworld Server</a>')
+
+    def test_leaf_to_html_p(self):
+        node = LeafNode("p", "Come check out all our game servers!")
+        self.assertEqual(node.to_html(), "<p>Come check out all our game servers!</p>")
+
+    def test_leaf_to_html_no_tag(self):
+        node = LeafNode(None, "We will game all night!")
+        self.assertEqual(node.to_html(), "We will game all night!")
+
 
 if __name__ == "__main__":
     unittest.main()
