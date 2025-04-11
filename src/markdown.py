@@ -19,8 +19,15 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
     return new_nodes
 
 def extract_markdown_images(markdown_text):
-    image_matches = re.findall(r"!\[(.*?)\]\((.*?)\)", markdown_text) #finds all instances of the ![alt-text](image-url) in a given string
-    for image in image_matches:
-        #finds the ![alt-text] and returns the alt text
-        alt_text = re.findall(r"!\[(.*?)\]")
-    return 0
+    lazy_check = re.findall(r"!\[(.*?)\]\((.*?)\)", markdown_text) #finds all instances of the ![alt-text](image-url) in a given string
+    specific_check = re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", markdown_text)
+    if len(specific_check) != len(lazy_check) or len(specific_check) == 0:
+        raise ValueError("invalid markdown syntax: unable to locate image markdown in string.")
+    return specific_check
+
+def extract_markdown_links(markdown_text):
+    lazy_check = re.findall(r"[^!]\[(.*?)\]\((.*?)\)", markdown_text) #finds all instances of the ![alt-text](image-url) in a given string
+    specific_check = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", markdown_text)
+    if len(specific_check) != len(lazy_check) or len(specific_check) == 0:
+        raise ValueError("invalid markdown syntax: unable to locate image markdown in string.")
+    return specific_check
