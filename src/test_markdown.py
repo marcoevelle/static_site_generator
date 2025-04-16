@@ -106,5 +106,35 @@ class TestMarkdown(unittest.TestCase):
             text = "This is a map of the world [[asteria]](https://starfinder.marcoevelle.games) and here [sector map](https://echos.marcoevelle.games)"
             extract_markdown_links(text)
 
+    def test_split_nodes_images(self):
+        """Testing splitting multiple images inline"""
+        node = TextNode(
+            "This is text with a link ![to boot dev](https://www.boot.dev) and ![to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_image([node])
+        expected_nodes = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.IMAGE, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.IMAGE, "https://www.youtube.com/@bootdotdev")
+        ]
+        self.assertEqual(new_nodes, expected_nodes)
+
+    def test_split_nodes_images(self):
+        """Testing splitting multiple images inline"""
+        node = TextNode(
+            "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        expected_nodes = [
+            TextNode("This is text with a link ", TextType.TEXT),
+            TextNode("to boot dev", TextType.LINK, "https://www.boot.dev"),
+            TextNode(" and ", TextType.TEXT),
+            TextNode("to youtube", TextType.LINK, "https://www.youtube.com/@bootdotdev")
+        ]
+        self.assertEqual(new_nodes, expected_nodes)
+
 if __name__ == "__main__":
     unittest.main()
