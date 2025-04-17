@@ -12,12 +12,12 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
         if len(node_string) % 2 == 0:
             raise ValueError("invalid markdown syntax: closing markdown delimiter is missing.")
         for x in range(0, len(node_string)):
+            if node_string[x] == "":
+                continue
             if x % 2 == 0:
                 split_nodes.append(TextNode(node_string[x],TextType.TEXT))
-            elif x % 2 == 1:
-                split_nodes.append(TextNode(node_string[x],text_type))
             else:
-                continue
+                split_nodes.append(TextNode(node_string[x],text_type))
         new_nodes.extend(split_nodes)
     return new_nodes
 
@@ -26,6 +26,7 @@ def split_nodes_image(old_nodes):
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
+            continue
         original_text = node.text
         try:
             images = extract_markdown_images(original_text)
@@ -33,6 +34,7 @@ def split_nodes_image(old_nodes):
             raise e
         if len(images) == 0:
             new_nodes.append(node)
+            continue
         for image in images:
             splitter = f"![{image[0]}]({image[1]})"
             sections = original_text.split(splitter)
@@ -50,6 +52,7 @@ def split_nodes_link(old_nodes):
     for node in old_nodes:
         if node.text_type != TextType.TEXT:
             new_nodes.append(node)
+            continue
         original_text = node.text
         try:
             links = extract_markdown_links(original_text)
@@ -57,6 +60,7 @@ def split_nodes_link(old_nodes):
             raise e
         if len(links) == 0:
             new_nodes.append(node)
+            continue
         for link in links:
             splitter = f"[{link[0]}]({link[1]})"
             sections = original_text.split(splitter)
@@ -82,3 +86,12 @@ def extract_markdown_links(markdown_text):
     if len(specific_check) != len(lazy_check):
         raise ValueError("invalid markdown syntax: unable to locate image markdown in string.")
     return specific_check
+
+def text_to_textnode(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "__", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
